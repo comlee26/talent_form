@@ -67,6 +67,22 @@
       text-transform: uppercase;
       margin-bottom: 8px;
     }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .header-logo {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      padding: 4px;
+    }
     .header h1 {
       font-family: 'DM Serif Display', serif;
       font-size: 32px;
@@ -350,6 +366,8 @@
       75% { transform: translateX(4px); }
     }
 
+    .optional-card label::after { content: '' !important; }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 520px) {
       .grid-2 { grid-template-columns: 1fr; }
@@ -361,17 +379,25 @@
 <body>
 
 <div class="header">
-  <div class="header-label">COMTEC HR System</div>
-  <h1>개인 이력 등록</h1>
-  <div class="header-sub">Personal Career Registration</div>
+  <div class="header-inner">
+    <img src="COM TEC_t.png" alt="COMTEC 로고" class="header-logo">
+    <div>
+      <div class="header-label">COMTEC HR System</div>
+      <h1>개인 이력 등록</h1>
+      <div class="header-sub">Personal Career Registration</div>
+    </div>
+  </div>
 </div>
 
 <div class="progress-wrap">
   <div class="progress-steps">
     <div class="step active"><span class="step-num">1</span>기본정보</div>
-    <div class="step"><span class="step-num">2</span>자격/경력</div>
-    <div class="step"><span class="step-num">3</span>기술스택</div>
-    <div class="step"><span class="step-num">4</span>프로젝트</div>
+    <div class="step"><span class="step-num">2</span>학력</div>
+    <div class="step"><span class="step-num">3</span>경력</div>
+    <div class="step"><span class="step-num">4</span>자격증</div>
+    <div class="step"><span class="step-num">5</span>기타 교육</div>
+    <div class="step"><span class="step-num">6</span>기술스택</div>
+    <div class="step"><span class="step-num">7</span>프로젝트</div>
   </div>
 </div>
 
@@ -403,7 +429,7 @@
         </div>
         <div class="field">
           <label>회사 이메일</label>
-          <input id="emailWork" placeholder="work@comtec.ai.kr" type="email">
+          <input id="emailWork" placeholder="work@company.com" type="email">
         </div>
         <div class="field full">
           <label>주소</label>
@@ -437,15 +463,51 @@
     </div>
   </div>
 
-  <!-- 자격/경력/교육 -->
+  <!-- 학력 -->
   <div class="card">
     <div class="card-header">
-      <div class="card-icon">📋</div>
-      <div class="card-title">자격 / 경력 / 교육</div>
+      <div class="card-icon">🎓</div>
+      <div class="card-title">학력</div>
     </div>
     <div class="card-body">
-      <div class="dynamic-list" id="careers"></div>
-      <button class="btn-add" onclick="addCareer()">＋ 항목 추가</button>
+      <div class="dynamic-list" id="educations"></div>
+      <button class="btn-add" onclick="addEducation()">＋ 학력 추가</button>
+    </div>
+  </div>
+
+  <!-- 경력 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">💼</div>
+      <div class="card-title">경력</div>
+    </div>
+    <div class="card-body">
+      <div class="dynamic-list" id="experiences"></div>
+      <button class="btn-add" onclick="addExperience()">＋ 경력 추가</button>
+    </div>
+  </div>
+
+  <!-- 자격증 -->
+  <div class="card optional-card">
+    <div class="card-header">
+      <div class="card-icon">🏅</div>
+      <div class="card-title">자격증 <span style="font-size:12px;font-weight:400;color:var(--text-sub)">(선택)</span></div>
+    </div>
+    <div class="card-body">
+      <div class="dynamic-list" id="licenses"></div>
+      <button class="btn-add" onclick="addLicense()">＋ 자격증 추가</button>
+    </div>
+  </div>
+
+  <!-- 기타 교육 -->
+  <div class="card optional-card">
+    <div class="card-header">
+      <div class="card-icon">📚</div>
+      <div class="card-title">기타 교육 <span style="font-size:12px;font-weight:400;color:var(--text-sub)">(선택 · 이수 / 수료 포함)</span></div>
+    </div>
+    <div class="card-body">
+      <div class="dynamic-list" id="trainings"></div>
+      <button class="btn-add" onclick="addTraining()">＋ 교육 추가</button>
     </div>
   </div>
 
@@ -474,7 +536,7 @@
   </div>
 
   <div class="submit-wrap">
-    <button class="btn-submit" onclick="submitForm()">등록 완료</button>
+    <button class="btn-submit" id="submitBtn" onclick="submitForm()">등록 하기</button>
   </div>
 
 </div>
@@ -490,57 +552,90 @@ function showToast(msg, type='success') {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-const CAREER_FIELDS = {
-  '':     { f1:'항목명',   f2:'기관명',  f3:'상세내용' },
-  '자격증': { f1:'자격증명', f2:'발급기관', f3:'취득 점수 / 등급' },
-  '경력':  { f1:'직무/역할', f2:'회사명',  f3:'업무 내용' },
-  '교육':  { f1:'과정명',   f2:'교육기관', f3:'교육 내용' },
-};
-
-function updateCareerLabels(row) {
-  const type = row.querySelector('.career-type').value;
-  const cfg = CAREER_FIELDS[type] || CAREER_FIELDS[''];
-  row.querySelector('.lbl-f1').textContent = cfg.f1;
-  row.querySelector('.lbl-f2').textContent = cfg.f2;
-  row.querySelector('.lbl-f3').textContent = cfg.f3;
-  row.querySelector('.inp-f1').placeholder = cfg.f1;
-  row.querySelector('.inp-f2').placeholder = cfg.f2;
-  row.querySelector('.inp-f3').placeholder = cfg.f3;
+// ── 자격증
+function addLicense() {
+  const div = document.createElement("div");
+  div.className = "dynamic-row";
+  div.innerHTML = `
+    <div class="row-fields" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="field" style="gap:4px"><label style="font-size:11px">자격증명</label><input placeholder="정보처리기사"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">발급기관</label><input placeholder="한국산업인력공단"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">취득일</label><input type="date"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">점수/등급</label><input placeholder="1급, 900점 ..."></div>
+    </div>
+    <button class="row-del" onclick="this.closest('.dynamic-row').remove()" title="삭제">×</button>
+  `;
+  document.getElementById("licenses").appendChild(div);
 }
 
-function addCareer() {
+// ── 경력
+function addExperience() {
   const div = document.createElement("div");
   div.className = "dynamic-row";
   div.style.flexDirection = "column";
   div.style.gap = "10px";
   div.innerHTML = `
-    <div style="display:flex;gap:8px;align-items:center">
-      <select class="career-type" style="width:110px;flex-shrink:0" onchange="updateCareerLabels(this.closest('.dynamic-row'))">
-        <option value="">구분 선택</option>
-        <option>자격증</option>
-        <option>경력</option>
-        <option>교육</option>
-      </select>
-      <input placeholder="기간" class="inp-period" style="width:130px;flex-shrink:0">
-      <div style="flex:1"></div>
-      <button class="row-del" onclick="this.closest('.dynamic-row').remove()" title="삭제">×</button>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
+      <div class="field" style="gap:4px"><label style="font-size:11px">회사명</label><input placeholder="(주)컴텍"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">입사일</label><input type="date"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">퇴사일</label><input type="date" placeholder="재직중이면 공란"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px">
-      <div class="field" style="gap:4px">
-        <label class="lbl-f1" style="font-size:11px">항목명</label>
-        <input class="inp-f1" placeholder="항목명">
-      </div>
-      <div class="field" style="gap:4px">
-        <label class="lbl-f2" style="font-size:11px">기관명</label>
-        <input class="inp-f2" placeholder="기관명">
-      </div>
-      <div class="field" style="gap:4px">
-        <label class="lbl-f3" style="font-size:11px">상세내용</label>
-        <input class="inp-f3" placeholder="상세내용">
+      <div class="field" style="gap:4px"><label style="font-size:11px">직위</label><input placeholder="대리, 과장 ..."></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">직무/역할</label><input placeholder="백엔드 개발"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">업무 내용</label><input placeholder="주요 담당 업무 요약"></div>
+    </div>
+    <button class="row-del" style="align-self:flex-end" onclick="this.closest('.dynamic-row').remove()" title="삭제">×</button>
+  `;
+  document.getElementById("experiences").appendChild(div);
+}
+
+// ── 학력
+function addEducation() {
+  const div = document.createElement("div");
+  div.className = "dynamic-row";
+  div.innerHTML = `
+    <div class="row-fields" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="field" style="gap:4px"><label style="font-size:11px">학교명</label><input placeholder="한국대학교"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">전공</label><input placeholder="컴퓨터공학과"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">기간</label><input placeholder="2010.03 ~ 2014.02"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">졸업구분</label>
+        <select>
+          <option value="">선택</option>
+          <option>졸업</option>
+          <option>졸업예정</option>
+          <option>재학중</option>
+          <option>중퇴</option>
+          <option>수료</option>
+        </select>
       </div>
     </div>
+    <button class="row-del" onclick="this.closest('.dynamic-row').remove()" title="삭제">×</button>
   `;
-  document.getElementById("careers").appendChild(div);
+  document.getElementById("educations").appendChild(div);
+}
+
+// ── 기타 교육
+function addTraining() {
+  const div = document.createElement("div");
+  div.className = "dynamic-row";
+  div.innerHTML = `
+    <div class="row-fields" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="field" style="gap:4px"><label style="font-size:11px">과정명</label><input placeholder="AWS Solutions Architect"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">교육기관</label><input placeholder="패스트캠퍼스"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">기간</label><input placeholder="2024.01 ~ 2024.03"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">이수구분</label>
+        <select>
+          <option value="">선택</option>
+          <option>이수</option>
+          <option>수료</option>
+          <option>수강중</option>
+        </select>
+      </div>
+    </div>
+    <button class="row-del" onclick="this.closest('.dynamic-row').remove()" title="삭제">×</button>
+  `;
+  document.getElementById("trainings").appendChild(div);
 }
 
 function addSkill() {
@@ -607,11 +702,14 @@ function validateRows(sectionId, fieldCount) {
 
 function submitForm() {
   const basicOk = validateBasic();
-  const careerOk = validateRows('careers');
-  const skillOk = validateRows('skills');
-  const projectOk = validateRows('projects');
+  const licenseOk    = true; // 자격증은 선택 입력
+  const experienceOk = validateRows('experiences');
+  const educationOk  = validateRows('educations');
+  const trainingOk   = true; // 기타 교육은 선택 입력
+  const skillOk      = validateRows('skills');
+  const projectOk    = validateRows('projects');
 
-  if (!basicOk || !careerOk || !skillOk || !projectOk) {
+  if (!basicOk || !licenseOk || !experienceOk || !educationOk || !trainingOk || !skillOk || !projectOk) {
     showToast("필수 항목을 모두 입력해주세요.", "error");
     // 첫 번째 에러 필드로 스크롤
     const first = document.querySelector('.error');
@@ -619,13 +717,22 @@ function submitForm() {
     return;
   }
 
-  const careers = [...document.querySelectorAll("#careers .dynamic-row")].map(row => ({
-    type:   row.querySelector('.career-type').value,
-    period: row.querySelector('.inp-period').value,
-    title:  row.querySelector('.inp-f1').value,
-    org:    row.querySelector('.inp-f2').value,
-    detail: row.querySelector('.inp-f3').value,
-  }));
+  const licenses = [...document.querySelectorAll("#licenses .dynamic-row")].map(row => {
+    const inputs = row.querySelectorAll("input");
+    return { name: inputs[0].value, issuer: inputs[1].value, date: inputs[2].value, grade: inputs[3].value };
+  });
+  const experiences = [...document.querySelectorAll("#experiences .dynamic-row")].map(row => {
+    const inputs = row.querySelectorAll("input");
+    return { company: inputs[0].value, startDate: inputs[1].value, endDate: inputs[2].value, position: inputs[3].value, role: inputs[4].value, detail: inputs[5].value };
+  });
+  const educations = [...document.querySelectorAll("#educations .dynamic-row")].map(row => {
+    const inputs = row.querySelectorAll("input, select");
+    return { school: inputs[0].value, major: inputs[1].value, period: inputs[2].value, status: inputs[3].value };
+  });
+  const trainings = [...document.querySelectorAll("#trainings .dynamic-row")].map(row => {
+    const inputs = row.querySelectorAll("input, select");
+    return { course: inputs[0].value, org: inputs[1].value, period: inputs[2].value, status: inputs[3].value };
+  });
   const skills = [...document.querySelectorAll("#skills .dynamic-row")].map(div => ({
     name: div.children[0].children[0].value,
     level: div.children[0].children[1].value
@@ -650,7 +757,7 @@ function submitForm() {
     education: document.getElementById("education").value,
     bankName: document.getElementById("bankName").value,
     bankAccount: document.getElementById("bankAccount").value,
-    careers, skills, projects
+    licenses, experiences, educations, trainings, skills, projects
   };
 
   fetch("https://script.google.com/macros/s/AKfycbyt1qJj7k_Zu47E8qRnJdFIFH4W2q-R6aEL3bWmO0f2YJJGdcD5EgXs8e0eRhk0mlwYtA/exec", {
@@ -658,7 +765,13 @@ function submitForm() {
     mode: "no-cors",
     body: JSON.stringify(data)
   })
-  .then(() => showToast("개인 이력 등록이 완료되었습니다! 🎉"))
+  .then(() => {
+    showToast("개인 이력 등록이 완료되었습니다! 🎉");
+    const btn = document.getElementById("submitBtn");
+    btn.textContent = "등록 완료 ✓";
+    btn.style.background = "var(--success)";
+    btn.disabled = true;
+  })
   .catch(() => showToast("전송 중 오류가 발생했습니다.", "error"));
 }
 
@@ -671,15 +784,28 @@ function formatPhone(el) {
 }
 
 // 초기 기본 1줄
-addCareer();
+addLicense();
+addExperience();
+addEducation();
+addTraining();
 addSkill();
 addProject();
+
 const steps = document.querySelectorAll('.step');
 const cards = document.querySelectorAll('.card');
+
+// 스텝 클릭 → 해당 카드로 스크롤
+steps.forEach((step, i) => {
+  step.addEventListener('click', () => {
+    cards[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// 스크롤 시 현재 섹션 active 표시
 window.addEventListener('scroll', () => {
   let current = 0;
   cards.forEach((card, i) => {
-    if (window.scrollY + 180 >= card.offsetTop) current = i;
+    if (window.scrollY + 200 >= card.offsetTop) current = i;
   });
   steps.forEach((s, i) => {
     s.className = 'step' + (i < current ? ' done' : i === current ? ' active' : '');
