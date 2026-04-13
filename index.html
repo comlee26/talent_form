@@ -395,7 +395,7 @@
         </div>
         <div class="field full">
           <label>연락처</label>
-          <input id="phone" placeholder="010-0000-0000">
+          <input id="phone" placeholder="010-0000-0000" maxlength="13" inputmode="numeric" oninput="formatPhone(this)">
         </div>
         <div class="field">
           <label>개인 이메일</label>
@@ -403,7 +403,7 @@
         </div>
         <div class="field">
           <label>회사 이메일</label>
-          <input id="emailWork" placeholder="work@company.com" type="email">
+          <input id="emailWork" placeholder="work@comtec.ai.kr" type="email">
         </div>
         <div class="field full">
           <label>주소</label>
@@ -650,6 +650,14 @@ function submitForm() {
   .then(res => res.json())
   .then(() => showToast("인재 등록이 완료되었습니다! 🎉"))
   .catch(() => showToast("등록 완료!", "error"));
+}
+
+function formatPhone(el) {
+  const digits = el.value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length < 4) el.value = digits;
+  else if (digits.length < 7) el.value = `${digits.slice(0,3)}-${digits.slice(3)}`;
+  else if (digits.length < 11) el.value = `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
+  else el.value = `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7,11)}`;
 }
 
 // 초기 기본 1줄
