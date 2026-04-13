@@ -425,6 +425,14 @@
           <label>최종학력</label>
           <input id="education" placeholder="예) 한국대학교 컴퓨터공학과 졸업">
         </div>
+        <div class="field">
+          <label>은행명</label>
+          <input id="bankName" placeholder="국민, 신한, 우리 ...">
+        </div>
+        <div class="field">
+          <label>계좌번호</label>
+          <input id="bankAccount" placeholder="000-0000-0000-00" inputmode="numeric">
+        </div>
       </div>
     </div>
   </div>
@@ -576,7 +584,7 @@ function markError(el) {
 }
 
 function validateBasic() {
-  const ids = ['name','birth','phone','emailPersonal','emailWork','address','position','job','startDate','education'];
+  const ids = ['name','birth','phone','emailPersonal','emailWork','address','position','job','startDate','education','bankName','bankAccount'];
   let ok = true;
   ids.forEach(id => {
     const el = document.getElementById(id);
@@ -640,11 +648,14 @@ function submitForm() {
     job: document.getElementById("job").value,
     startDate: document.getElementById("startDate").value,
     education: document.getElementById("education").value,
+    bankName: document.getElementById("bankName").value,
+    bankAccount: document.getElementById("bankAccount").value,
     careers, skills, projects
   };
 
   fetch("https://script.google.com/macros/s/AKfycbyt1qJj7k_Zu47E8qRnJdFIFH4W2q-R6aEL3bWmO0f2YJJGdcD5EgXs8e0eRhk0mlwYtA/exec", {
     method: "POST",
+    mode: "no-cors",
     body: JSON.stringify(data)
   })
   .then(() => showToast("개인 이력 등록이 완료되었습니다! 🎉"))
