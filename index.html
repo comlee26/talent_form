@@ -623,11 +623,11 @@ function submitForm() {
     level: div.children[0].children[1].value
   }));
   const projects = [...document.querySelectorAll("#projects .dynamic-row")].map(div => ({
-    name: div.children[0].children[0].value,
-    period: div.children[0].children[1].value,
-    company: div.children[0].children[2].value,
-    role: div.children[0].children[3].value,
-    env: div.children[0].children[4].value
+    name:    div.querySelector('input:nth-child(1)') ? div.querySelectorAll('input')[0].value : '',
+    period:  div.querySelectorAll('input')[1].value,
+    company: div.querySelectorAll('input')[2].value,
+    role:    div.querySelectorAll('input')[3].value,
+    env:     div.querySelectorAll('input')[4].value,
   }));
   const data = {
     name: document.getElementById("name").value,
@@ -645,11 +645,11 @@ function submitForm() {
 
   fetch("https://script.google.com/macros/s/AKfycbyt1qJj7k_Zu47E8qRnJdFIFH4W2q-R6aEL3bWmO0f2YJJGdcD5EgXs8e0eRhk0mlwYtA/exec", {
     method: "POST",
+    mode: "no-cors",
     body: JSON.stringify(data)
   })
-  .then(res => res.json())
   .then(() => showToast("개인 이력 등록이 완료되었습니다! 🎉"))
-  .catch(() => showToast("등록 완료!", "error"));
+  .catch(() => showToast("전송 중 오류가 발생했습니다.", "error"));
 }
 
 function formatPhone(el) {
