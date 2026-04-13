@@ -421,7 +421,7 @@
         </div>
         <div class="field full">
           <label>연락처</label>
-          <input id="phone" placeholder="010-0000-0000" maxlength="13" inputmode="numeric" oninput="formatPhone(this)">
+          <input id="phone" placeholder="01000000000" maxlength="13" inputmode="numeric" oninput="formatPhone(this)">
         </div>
         <div class="field">
           <label>개인 이메일</label>
@@ -432,12 +432,12 @@
           <input id="emailWork" placeholder="work@comtec.ai.kr" type="email">
         </div>
         <div class="field full">
-          <label>주소</label>
+          <label>자택주소</label>
           <input id="address" placeholder="서울특별시 강남구 ...">
         </div>
         <div class="field">
           <label>직위</label>
-          <input id="position" placeholder="전무,이사,부장,사원 ...">
+          <input id="position" placeholder="전무, 이사, 부장, 사원 ...">
         </div>
         <div class="field">
           <label>직무</label>
@@ -617,7 +617,18 @@ function addEducation() {
   const div = document.createElement("div");
   div.className = "dynamic-row";
   div.innerHTML = `
-    <div class="row-fields" style="grid-template-columns:2fr 1fr 1fr 1fr">
+    <div class="row-fields" style="grid-template-columns:1fr 2fr 1fr 1fr 1fr">
+      <div class="field" style="gap:4px"><label style="font-size:11px">학위구분</label>
+        <select>
+          <option value="">선택</option>
+          <option>박사</option>
+          <option>석사</option>
+          <option>학사</option>
+          <option>전문학사</option>
+          <option>고등학교</option>
+          <option>기타</option>
+        </select>
+      </div>
       <div class="field" style="gap:4px"><label style="font-size:11px">학교명</label><input placeholder="한국대학교"></div>
       <div class="field" style="gap:4px"><label style="font-size:11px">전공</label><input placeholder="컴퓨터공학과"></div>
       <div class="field" style="gap:4px"><label style="font-size:11px">기간</label><input placeholder="2010.03 ~ 2014.02"></div>
@@ -756,8 +767,8 @@ function submitForm() {
     };
   });
   const educations = [...document.querySelectorAll("#educations .dynamic-row")].map(row => {
-    const inputs = row.querySelectorAll("input, select");
-    return { school: inputs[0].value, major: inputs[1].value, period: inputs[2].value, status: inputs[3].value };
+    const fields = row.querySelectorAll("input, select");
+    return { degree: fields[0].value, school: fields[1].value, major: fields[2].value, period: fields[3].value, status: fields[4].value };
   });
   const trainings = [...document.querySelectorAll("#trainings .dynamic-row")].map(row => {
     const inputs = row.querySelectorAll("input, select");
