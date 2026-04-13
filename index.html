@@ -403,7 +403,7 @@
         </div>
         <div class="field">
           <label>회사 이메일</label>
-          <input id="emailWork" placeholder="work@comtec.ai.kr" type="email">
+          <input id="emailWork" placeholder="work@company.com" type="email">
         </div>
         <div class="field full">
           <label>주소</label>
@@ -482,18 +482,55 @@ function showToast(msg, type='success') {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+const CAREER_FIELDS = {
+  '':     { f1:'항목명',   f2:'기관명',  f3:'상세내용' },
+  '자격증': { f1:'자격증명', f2:'발급기관', f3:'취득 점수 / 등급' },
+  '경력':  { f1:'직무/역할', f2:'회사명',  f3:'업무 내용' },
+  '교육':  { f1:'과정명',   f2:'교육기관', f3:'교육 내용' },
+};
+
+function updateCareerLabels(row) {
+  const type = row.querySelector('.career-type').value;
+  const cfg = CAREER_FIELDS[type] || CAREER_FIELDS[''];
+  row.querySelector('.lbl-f1').textContent = cfg.f1;
+  row.querySelector('.lbl-f2').textContent = cfg.f2;
+  row.querySelector('.lbl-f3').textContent = cfg.f3;
+  row.querySelector('.inp-f1').placeholder = cfg.f1;
+  row.querySelector('.inp-f2').placeholder = cfg.f2;
+  row.querySelector('.inp-f3').placeholder = cfg.f3;
+}
+
 function addCareer() {
   const div = document.createElement("div");
   div.className = "dynamic-row";
+  div.style.flexDirection = "column";
+  div.style.gap = "10px";
   div.innerHTML = `
-    <div class="row-fields" style="grid-template-columns:1fr 1fr 1fr 1fr 2fr">
-      <input placeholder="구분 (자격/경력/교육)">
-      <input placeholder="항목명">
-      <input placeholder="기관명">
-      <input placeholder="기간">
-      <input placeholder="상세내용">
+    <div style="display:flex;gap:8px;align-items:center">
+      <select class="career-type" style="width:110px;flex-shrink:0" onchange="updateCareerLabels(this.closest('.dynamic-row'))">
+        <option value="">구분 선택</option>
+        <option>자격증</option>
+        <option>경력</option>
+        <option>교육</option>
+      </select>
+      <input placeholder="기간" class="inp-period" style="width:130px;flex-shrink:0">
+      <div style="flex:1"></div>
+      <button class="row-del" onclick="this.closest('.dynamic-row').remove()" title="삭제">×</button>
     </div>
-    <button class="row-del" onclick="this.parentElement.remove()" title="삭제">×</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px">
+      <div class="field" style="gap:4px">
+        <label class="lbl-f1" style="font-size:11px">항목명</label>
+        <input class="inp-f1" placeholder="항목명">
+      </div>
+      <div class="field" style="gap:4px">
+        <label class="lbl-f2" style="font-size:11px">기관명</label>
+        <input class="inp-f2" placeholder="기관명">
+      </div>
+      <div class="field" style="gap:4px">
+        <label class="lbl-f3" style="font-size:11px">상세내용</label>
+        <input class="inp-f3" placeholder="상세내용">
+      </div>
+    </div>
   `;
   document.getElementById("careers").appendChild(div);
 }
@@ -574,12 +611,12 @@ function submitForm() {
     return;
   }
 
-  const careers = [...document.querySelectorAll("#careers .dynamic-row")].map(div => ({
-    type: div.children[0].children[0].value,
-    title: div.children[0].children[1].value,
-    org: div.children[0].children[2].value,
-    period: div.children[0].children[3].value,
-    detail: div.children[0].children[4].value
+  const careers = [...document.querySelectorAll("#careers .dynamic-row")].map(row => ({
+    type:   row.querySelector('.career-type').value,
+    period: row.querySelector('.inp-period').value,
+    f1:     row.querySelector('.inp-f1').value,
+    f2:     row.querySelector('.inp-f2').value,
+    f3:     row.querySelector('.inp-f3').value,
   }));
   const skills = [...document.querySelectorAll("#skills .dynamic-row")].map(div => ({
     name: div.children[0].children[0].value,
