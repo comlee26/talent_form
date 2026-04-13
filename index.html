@@ -403,7 +403,7 @@
         </div>
         <div class="field">
           <label>회사 이메일</label>
-          <input id="emailWork" placeholder="work@comtec.ai.kr" type="email">
+          <input id="emailWork" placeholder="work@company.com" type="email">
         </div>
         <div class="field full">
           <label>주소</label>
@@ -614,9 +614,9 @@ function submitForm() {
   const careers = [...document.querySelectorAll("#careers .dynamic-row")].map(row => ({
     type:   row.querySelector('.career-type').value,
     period: row.querySelector('.inp-period').value,
-    항목명:  row.querySelector('.inp-f1').value,
-    기관명:  row.querySelector('.inp-f2').value,
-    상세내용: row.querySelector('.inp-f3').value,
+    title:  row.querySelector('.inp-f1').value,
+    org:    row.querySelector('.inp-f2').value,
+    detail: row.querySelector('.inp-f3').value,
   }));
   const skills = [...document.querySelectorAll("#skills .dynamic-row")].map(div => ({
     name: div.children[0].children[0].value,
