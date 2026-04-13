@@ -614,9 +614,9 @@ function submitForm() {
   const careers = [...document.querySelectorAll("#careers .dynamic-row")].map(row => ({
     type:   row.querySelector('.career-type').value,
     period: row.querySelector('.inp-period').value,
-    f1:     row.querySelector('.inp-f1').value,
-    f2:     row.querySelector('.inp-f2').value,
-    f3:     row.querySelector('.inp-f3').value,
+    항목명:  row.querySelector('.inp-f1').value,
+    기관명:  row.querySelector('.inp-f2').value,
+    상세내용: row.querySelector('.inp-f3').value,
   }));
   const skills = [...document.querySelectorAll("#skills .dynamic-row")].map(div => ({
     name: div.children[0].children[0].value,
@@ -648,7 +648,7 @@ function submitForm() {
     body: JSON.stringify(data)
   })
   .then(res => res.json())
-  .then(() => showToast("인재 등록이 완료되었습니다! 🎉"))
+  .then(() => showToast("개인 이력 등록이 완료되었습니다! 🎉"))
   .catch(() => showToast("등록 완료!", "error"));
 }
 
