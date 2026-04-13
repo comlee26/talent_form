@@ -429,7 +429,7 @@
         </div>
         <div class="field">
           <label>회사 이메일</label>
-          <input id="emailWork" placeholder="work@company.com" type="email">
+          <input id="emailWork" placeholder="work@comtec.ai.kr" type="email">
         </div>
         <div class="field full">
           <label>주소</label>
@@ -437,7 +437,7 @@
         </div>
         <div class="field">
           <label>직위</label>
-          <input id="position" placeholder="대리, 과장, 팀장 ...">
+          <input id="position" placeholder="전무,이사,부장,사원 ...">
         </div>
         <div class="field">
           <label>직무</label>
@@ -453,7 +453,7 @@
         </div>
         <div class="field">
           <label>은행명</label>
-          <input id="bankName" placeholder="국민, 신한, 우리 ...">
+          <input id="bankName" placeholder="신한은행, 우리은행 ...">
         </div>
         <div class="field">
           <label>계좌번호</label>
@@ -568,6 +568,24 @@ function addLicense() {
   document.getElementById("licenses").appendChild(div);
 }
 
+// ── 경력 기간 자동 계산
+function calcDuration(row) {
+  const inputs = row.querySelectorAll('input[type="date"]');
+  const start  = inputs[0].value;
+  const end    = inputs[1].value;
+  const display = row.querySelector('.inp-duration');
+  if (!start) { display.value = ''; return; }
+  const s = new Date(start);
+  const e = end ? new Date(end) : new Date();
+  let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+  if (months < 0) { display.value = ''; return; }
+  const years = Math.floor(months / 12);
+  const rem   = months % 12;
+  display.value = years > 0
+    ? (rem > 0 ? `${years}년 ${rem}개월` : `${years}년`)
+    : `${rem}개월`;
+}
+
 // ── 경력
 function addExperience() {
   const div = document.createElement("div");
@@ -575,10 +593,14 @@ function addExperience() {
   div.style.flexDirection = "column";
   div.style.gap = "10px";
   div.innerHTML = `
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px">
       <div class="field" style="gap:4px"><label style="font-size:11px">회사명</label><input placeholder="(주)컴텍"></div>
-      <div class="field" style="gap:4px"><label style="font-size:11px">입사일</label><input type="date"></div>
-      <div class="field" style="gap:4px"><label style="font-size:11px">퇴사일</label><input type="date" placeholder="재직중이면 공란"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">입사일</label><input type="date" oninput="calcDuration(this.closest('.dynamic-row'))"></div>
+      <div class="field" style="gap:4px"><label style="font-size:11px">퇴사일</label><input type="date" oninput="calcDuration(this.closest('.dynamic-row'))"></div>
+      <div class="field" style="gap:4px">
+        <label style="font-size:11px">근무기간</label>
+        <input class="inp-duration" placeholder="자동계산" readonly style="background:#f0f0f5;color:var(--accent);font-weight:600;cursor:default">
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px">
       <div class="field" style="gap:4px"><label style="font-size:11px">직위</label><input placeholder="대리, 과장 ..."></div>
@@ -723,7 +745,15 @@ function submitForm() {
   });
   const experiences = [...document.querySelectorAll("#experiences .dynamic-row")].map(row => {
     const inputs = row.querySelectorAll("input");
-    return { company: inputs[0].value, startDate: inputs[1].value, endDate: inputs[2].value, position: inputs[3].value, role: inputs[4].value, detail: inputs[5].value };
+    return {
+      company:   inputs[0].value,
+      startDate: inputs[1].value,
+      endDate:   inputs[2].value,
+      duration:  inputs[3].value,  // 근무기간 자동계산값
+      position:  inputs[4].value,
+      role:      inputs[5].value,
+      detail:    inputs[6].value
+    };
   });
   const educations = [...document.querySelectorAll("#educations .dynamic-row")].map(row => {
     const inputs = row.querySelectorAll("input, select");
