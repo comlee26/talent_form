@@ -645,7 +645,6 @@ function submitForm() {
 
   fetch("https://script.google.com/macros/s/AKfycbyt1qJj7k_Zu47E8qRnJdFIFH4W2q-R6aEL3bWmO0f2YJJGdcD5EgXs8e0eRhk0mlwYtA/exec", {
     method: "POST",
-    mode: "no-cors",
     body: JSON.stringify(data)
   })
   .then(() => showToast("개인 이력 등록이 완료되었습니다! 🎉"))
