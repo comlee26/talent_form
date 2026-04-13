@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>개인 이력 등록</title>
+</head>
+<body>
+  <h2>이력 등록</h2>
+
+  <h3>기본정보</h3>
+  <input placeholder="이름" id="name"><br>
+  <input placeholder="생년월일" id="birth"><br>
+  <input placeholder="연락처" id="phone"><br>
+  <input placeholder="이메일" id="email"><br>
+  <input placeholder="주소" id="address"><br>
+  <input placeholder="직위" id="position"><br>
+  <input placeholder="직무" id="job"><br>
+  <input placeholder="출근일자" id="startDate"><br>
+  <input placeholder="최종학력" id="education"><br>
+
+  <h3>자격/경력/교육</h3>
+  <div id="careers"></div>
+  <button onclick="addCareer()">+ 추가</button>
+
+  <h3>기술스택</h3>
+  <div id="skills"></div>
+  <button onclick="addSkill()">+ 추가</button>
+
+  <h3>프로젝트</h3>
+  <div id="projects"></div>
+  <button onclick="addProject()">+ 추가</button>
+
+  <br><br>
+  <button onclick="submitForm()">제출</button>
+
+<script>
+function addCareer() {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input placeholder="구분">
+    <input placeholder="항목명">
+    <input placeholder="기관명">
+    <input placeholder="기간">
+    <input placeholder="상세내용"><br>
+  `;
+  document.getElementById("careers").appendChild(div);
+}
+
+function addSkill() {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input placeholder="기술명">
+    <input placeholder="숙련도"><br>
+  `;
+  document.getElementById("skills").appendChild(div);
+}
+
+function addProject() {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input placeholder="프로젝트명">
+    <input placeholder="기간">
+    <input placeholder="회사">
+    <input placeholder="역할">
+    <input placeholder="개발환경"><br>
+  `;
+  document.getElementById("projects").appendChild(div);
+}
+
+function submitForm() {
+  const careers = [...document.querySelectorAll("#careers div")].map(div => ({
+    type: div.children[0].value,
+    title: div.children[1].value,
+    org: div.children[2].value,
+    period: div.children[3].value,
+    detail: div.children[4].value
+  }));
+
+  const skills = [...document.querySelectorAll("#skills div")].map(div => ({
+    name: div.children[0].value,
+    level: div.children[1].value
+  }));
+
+  const projects = [...document.querySelectorAll("#projects div")].map(div => ({
+    name: div.children[0].value,
+    period: div.children[1].value,
+    company: div.children[2].value,
+    role: div.children[3].value,
+    env: div.children[4].value
+  }));
+
+  const data = {
+    name: document.getElementById("name").value,
+    birth: document.getElementById("birth").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value,
+    address: document.getElementById("address").value,
+    position: document.getElementById("position").value,
+    job: document.getElementById("job").value,
+    startDate: document.getElementById("startDate").value,
+    education: document.getElementById("education").value,
+    careers,
+    skills,
+    projects
+  };
+
+  fetch("여기에_앱스크립트_URL", {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(() => alert("등록 완료!"));
+}
+</script>
+</body>
+</html>
